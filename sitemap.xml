@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://mawen12.github.io/2025/05/05/RESP2/</loc>
+    
+    <lastmod>2025-05-05</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://mawen12.github.io/2025/04/17/Log-Per-Request/</loc>
     
     <lastmod>2025-05-05</lastmod>
@@ -67,6 +76,27 @@
   
   <url>
     <loc>https://mawen12.github.io/tags/Interceptor/</loc>
+    <lastmod>2025-05-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://mawen12.github.io/tags/Protocol/</loc>
+    <lastmod>2025-05-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://mawen12.github.io/tags/Redis/</loc>
+    <lastmod>2025-05-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://mawen12.github.io/tags/RESP/</loc>
     <lastmod>2025-05-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>

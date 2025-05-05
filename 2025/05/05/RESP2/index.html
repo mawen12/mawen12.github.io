@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"mawen12.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="❓ RESP 是什么？RESP 是 Redis 客户端和服务端通信所采用的二进制协议，全称为：Redis serialization procotol，简称：RESP。 本次介绍的RESP2是Redis从2.0版本开始传输协议。 📌 RESP2 的结构RESP2 一共有定义了五种结构，分别为：  Simple strings：用于表示成功的状态 Simple errors：用于表示失败 Inte">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RESP2">
+<meta property="og:url" content="https://mawen12.github.io/2025/05/05/RESP2/index.html">
+<meta property="og:site_name" content="技术旷野">
+<meta property="og:description" content="❓ RESP 是什么？RESP 是 Redis 客户端和服务端通信所采用的二进制协议，全称为：Redis serialization procotol，简称：RESP。 本次介绍的RESP2是Redis从2.0版本开始传输协议。 📌 RESP2 的结构RESP2 一共有定义了五种结构，分别为：  Simple strings：用于表示成功的状态 Simple errors：用于表示失败 Inte">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-05-05T14:13:20.000Z">
+<meta property="article:modified_time" content="2025-05-05T14:40:45.917Z">
+<meta property="article:author" content="mawen12">
+<meta property="article:tag" content="Protocol">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="RESP">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://mawen12.github.io/2025/05/05/RESP2/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh_CN","comments":true,"permalink":"https://mawen12.github.io/2025/05/05/RESP2/","path":"2025/05/05/RESP2/","title":"RESP2"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>RESP2 | 技术旷野</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PNNJ27E624"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-PNNJ27E624","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="技术旷野" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">技术旷野</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">技术点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E2%9D%93-RESP-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">❓ RESP 是什么？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%93%8C-RESP2-%E7%9A%84%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">📌 RESP2 的结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Simple-strings"><span class="nav-number">2.1.</span> <span class="nav-text">Simple strings</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Simple-errors"><span class="nav-number">2.2.</span> <span class="nav-text">Simple errors</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Integers"><span class="nav-number">2.3.</span> <span class="nav-text">Integers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Bulk-strings"><span class="nav-number">2.4.</span> <span class="nav-text">Bulk strings</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Arrays"><span class="nav-number">2.5.</span> <span class="nav-text">Arrays</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E2%98%95-Java-%E5%AE%9E%E7%8E%B0%E7%BC%96%E7%A0%81-%E8%A7%A3%E7%A0%81"><span class="nav-number">3.</span> <span class="nav-text">☕ Java 实现编码&#x2F;解码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E8%A1%A8%E5%8E%9F%E5%A7%8B%E5%86%85%E5%AE%B9%E7%9A%84%E5%AF%B9%E8%B1%A1"><span class="nav-number">3.1.</span> <span class="nav-text">代表原始内容的对象</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">mawen12</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh_CN">
+    <link itemprop="mainEntityOfPage" href="https://mawen12.github.io/2025/05/05/RESP2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="mawen12">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术旷野">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="RESP2 | 技术旷野">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          RESP2
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2025-05-05 22:13:20 / Modified: 22:40:45" itemprop="dateCreated datePublished" datetime="2025-05-05T22:13:20+08:00">2025-05-05</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="❓-RESP-是什么？"><a href="#❓-RESP-是什么？" class="headerlink" title="❓ RESP 是什么？"></a>❓ RESP 是什么？</h1><p>RESP 是 Redis 客户端和服务端通信所采用的二进制协议，全称为：Redis serialization procotol，简称：RESP。</p>
+<p>本次介绍的RESP2是Redis从2.0版本开始传输协议。</p>
+<h1 id="📌-RESP2-的结构"><a href="#📌-RESP2-的结构" class="headerlink" title="📌 RESP2 的结构"></a>📌 RESP2 的结构</h1><p>RESP2 一共有定义了五种结构，分别为：</p>
+<ul>
+<li>Simple strings：用于表示成功的状态</li>
+<li>Simple errors：用于表示失败</li>
+<li>Integers: 用于表示数字</li>
+<li>Bulk strings: 字符串</li>
+<li>Arrays：数组，最为特殊的结构，可以由多个其他结构组成。</li>
+</ul>
+<p>每个结构都有一个<strong>特定前缀</strong>，并且末尾固定为终止符<code>\r\n</code>。</p>
+<h2 id="Simple-strings"><a href="#Simple-strings" class="headerlink" title="Simple strings"></a>Simple strings</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+OK\r\n</span><br></pre></td></tr></table></figure>
+<p>前缀符号为<code>+</code>，中间为成功状态，末尾为<code>\r\n</code>。</p>
+<h2 id="Simple-errors"><a href="#Simple-errors" class="headerlink" title="Simple errors"></a>Simple errors</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-Error message\r\n</span><br></pre></td></tr></table></figure>
+<p>前缀符号为<code>-</code>,中间为错误内容，末尾为<code>\r\n</code></p>
+<h2 id="Integers"><a href="#Integers" class="headerlink" title="Integers"></a>Integers</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">:&lt;value&gt;\r\n</span><br></pre></td></tr></table></figure>
+<p>前缀符号为<code>:</code>，中间为整数，末尾为<code>\r\n</code></p>
+<h2 id="Bulk-strings"><a href="#Bulk-strings" class="headerlink" title="Bulk strings"></a>Bulk strings</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&lt;length&gt;\r\n&lt;data&gt;\r\n</span><br></pre></td></tr></table></figure>
+<p>前缀符号为<code>$</code>，之后跟上字符串长度，后跟<code>\r\n</code>。<br>下一行开头为之前长度的字符串，后跟<code>\r\n</code>。</p>
+<h2 id="Arrays"><a href="#Arrays" class="headerlink" title="Arrays"></a>Arrays</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*&lt;number-of-element&gt;\r\n&lt;element-1&gt;...&lt;element-n&gt;</span><br></pre></td></tr></table></figure>
+<p>前缀符号为<code>*</code>，之后跟上元素数量，后跟<code>\r\n</code>。<br>之后为其他RESP的类型表示。</p>
+<h1 id="☕-Java-实现编码-解码"><a href="#☕-Java-实现编码-解码" class="headerlink" title="☕ Java 实现编码&#x2F;解码"></a>☕ Java 实现编码&#x2F;解码</h1><h2 id="代表原始内容的对象"><a href="#代表原始内容的对象" class="headerlink" title="代表原始内容的对象"></a>代表原始内容的对象</h2><ol>
+<li>对应五种类型</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> <span class="title class_">RedisTokenType</span> &#123;  </span><br><span class="line">    STATUS,  </span><br><span class="line">    ERROR,  </span><br><span class="line">    INTEGER,  </span><br><span class="line">    STRING,  </span><br><span class="line">    ARRAY,  </span><br><span class="line">    UNKNOWN;  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Constants</span> &#123;  </span><br><span class="line">    <span class="type">byte</span> <span class="variable">STATUS</span> <span class="operator">=</span> <span class="string">&#x27;+&#x27;</span>;  </span><br><span class="line">    <span class="type">byte</span> <span class="variable">ERROR</span> <span class="operator">=</span> <span class="string">&#x27;-&#x27;</span>;  </span><br><span class="line">    <span class="type">byte</span> <span class="variable">INTEGER</span> <span class="operator">=</span> <span class="string">&#x27;:&#x27;</span>;  </span><br><span class="line">    <span class="type">byte</span> <span class="variable">STRING</span> <span class="operator">=</span> <span class="string">&#x27;$&#x27;</span>;  </span><br><span class="line">    <span class="type">byte</span> <span class="variable">ARRAY</span> <span class="operator">=</span> <span class="string">&#x27;*&#x27;</span>;  </span><br><span class="line">    <span class="type">byte</span>[] DELIMITER = <span class="keyword">new</span> <span class="title class_">byte</span>[]&#123;<span class="string">&#x27;\r&#x27;</span>, <span class="string">&#x27;\n&#x27;</span>&#125;;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>代表Redis原始对象</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">RedisToken</span> &#123;  </span><br><span class="line">    RedisTokenType <span class="title function_">getType</span><span class="params">()</span>;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">AbstractRedisToken</span>&lt;T&gt; <span class="keyword">implements</span> <span class="title class_">RedisToken</span> &#123;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> RedisTokenType type;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> T value;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">protected</span> <span class="title function_">AbstractRedisToken</span><span class="params">(RedisTokenType type, T value)</span> &#123;  </span><br><span class="line">        <span class="built_in">this</span>.type = checkNonNull(type);  </span><br><span class="line">        <span class="built_in">this</span>.value = value;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">public</span> RedisTokenType <span class="title function_">getType</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span> type;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> T <span class="title function_">getValue</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span> value;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 对应 Simple strings</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">StatusRedisToken</span> <span class="keyword">extends</span> <span class="title class_">AbstractRedisToken</span>&lt;String&gt; &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">StatusRedisToken</span><span class="params">(String value)</span> &#123;  </span><br><span class="line">        <span class="built_in">super</span>(RedisTokenType.STATUS, value);  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 对应 Simple errors</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">ErrorRedisToken</span> <span class="keyword">extends</span> <span class="title class_">AbstractRedisToken</span>&lt;String&gt; &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ErrorRedisToken</span><span class="params">(String value)</span> &#123;  </span><br><span class="line">        <span class="built_in">super</span>(RedisTokenType.ERROR, value);  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 对应 Integer</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">LongRedisToken</span> <span class="keyword">extends</span> <span class="title class_">AbstractRedisToken</span>&lt;Long&gt; &#123;   </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">LongRedisToken</span><span class="params">(Long value)</span> &#123;  </span><br><span class="line">        <span class="built_in">super</span>(RedisTokenType.INTEGER, value);  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 对应 Bulk strings</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">StringRedisToken</span> <span class="keyword">extends</span> <span class="title class_">AbstractRedisToken</span>&lt;String&gt; &#123;   </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">StringRedisToken</span><span class="params">(String value)</span> &#123;  </span><br><span class="line">        <span class="built_in">super</span>(RedisTokenType.STRING, value);  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 对应 Array</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">ArrayRedisToken</span> <span class="keyword">extends</span> <span class="title class_">AbstractRedisToken</span>&lt;Collection&lt;RedisToken&gt;&gt; &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ArrayRedisToken</span><span class="params">(Collection&lt;RedisToken&gt; value)</span> &#123;  </span><br><span class="line">        <span class="built_in">super</span>(RedisTokenType.ARRAY, checkNonNull(value));  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">size</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span> getValue().size();  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<ol start="3">
+<li>编码器，从RedisToken -&gt; byte[]</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SimpleRedisEncoder</span> &#123;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> <span class="type">byte</span>[] encode(RedisToken msg) &#123;  </span><br><span class="line">        <span class="type">ByteBufferBuilder</span> <span class="variable">builder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteBufferBuilder</span>();  </span><br><span class="line">  </span><br><span class="line">        encodeToken(builder, msg);  </span><br><span class="line">  </span><br><span class="line">        <span class="keyword">return</span> builder.toArray();  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">encodeToken</span><span class="params">(ByteBufferBuilder builder, RedisToken msg)</span> &#123;  </span><br><span class="line">        <span class="keyword">switch</span> (msg.getType()) &#123;  </span><br><span class="line">            <span class="keyword">case</span> STATUS: &#123;  </span><br><span class="line">                <span class="type">String</span> <span class="variable">status</span> <span class="operator">=</span> ((StatusRedisToken) msg).getValue();  </span><br><span class="line">                builder.append(STATUS).append(status).append(DELIMITER);  </span><br><span class="line">                <span class="keyword">break</span>;  </span><br><span class="line">            &#125;  </span><br><span class="line">            <span class="keyword">case</span> ERROR: &#123;  </span><br><span class="line">                <span class="type">String</span> <span class="variable">error</span> <span class="operator">=</span> ((ErrorRedisToken) msg).getValue();  </span><br><span class="line">                builder.append(ERROR).append(error).append(DELIMITER);  </span><br><span class="line">                <span class="keyword">break</span>;  </span><br><span class="line">            &#125;  </span><br><span class="line">            <span class="keyword">case</span> INTEGER: &#123;  </span><br><span class="line">                <span class="type">Long</span> <span class="variable">integer</span> <span class="operator">=</span> ((LongRedisToken) msg).getValue();  </span><br><span class="line">                builder.append(INTEGER).append(integer).append(DELIMITER);  </span><br><span class="line">                <span class="keyword">break</span>;  </span><br><span class="line">            &#125;  </span><br><span class="line">            <span class="keyword">case</span> STRING: &#123;  </span><br><span class="line">                <span class="type">String</span> <span class="variable">string</span> <span class="operator">=</span> ((StringRedisToken) msg).getValue();  </span><br><span class="line">                <span class="keyword">if</span> (string != <span class="literal">null</span>) &#123;  </span><br><span class="line">                    <span class="type">byte</span>[] bytes = string.getBytes(StandardCharsets.UTF_8);  </span><br><span class="line">                    builder.append(STRING).append(bytes.length).append(DELIMITER).append(bytes).append(DELIMITER);  </span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;  </span><br><span class="line">                    builder.append(STRING).append(-<span class="number">1</span>).append(DELIMITER);  </span><br><span class="line">                &#125;  </span><br><span class="line">                <span class="keyword">break</span>;  </span><br><span class="line">            &#125;  </span><br><span class="line">            <span class="keyword">case</span> ARRAY: &#123;  </span><br><span class="line">                Collection&lt;RedisToken&gt; array = ((ArrayRedisToken) msg).getValue();  </span><br><span class="line">                <span class="type">int</span> <span class="variable">size</span> <span class="operator">=</span> array == <span class="literal">null</span> ? <span class="number">0</span> : array.size();  </span><br><span class="line">                builder.append(ARRAY).append(size).append(DELIMITER);  </span><br><span class="line">                <span class="keyword">for</span> (RedisToken token : array) &#123;  </span><br><span class="line">                    encodeToken(builder, token);  </span><br><span class="line">                &#125;  </span><br><span class="line">                <span class="keyword">break</span>;  </span><br><span class="line">            &#125;  </span><br><span class="line">            <span class="keyword">case</span> UNKNOWN:  </span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(msg.toString());  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">ByteBufferBuilder</span> &#123;  </span><br><span class="line">  </span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">INITIAL_CAPACITY</span> <span class="operator">=</span> <span class="number">1024</span>;  </span><br><span class="line">        <span class="keyword">private</span> <span class="type">ByteBuffer</span> <span class="variable">buffer</span> <span class="operator">=</span> ByteBuffer.allocate(INITIAL_CAPACITY);  </span><br><span class="line">  </span><br><span class="line">        <span class="keyword">private</span> ByteBufferBuilder <span class="title function_">append</span><span class="params">(<span class="type">long</span> i)</span> &#123;  </span><br><span class="line">            append(String.valueOf(i));  </span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>;  </span><br><span class="line">        &#125;  </span><br><span class="line">  </span><br><span class="line">        <span class="keyword">private</span> ByteBufferBuilder <span class="title function_">append</span><span class="params">(String str)</span> &#123;  </span><br><span class="line">            append(str.getBytes(StandardCharsets.UTF_8));  </span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>;  </span><br><span class="line">        &#125;  </span><br><span class="line">  </span><br><span class="line">        <span class="keyword">private</span> ByteBufferBuilder <span class="title function_">append</span><span class="params">(<span class="type">byte</span>[] buf)</span> &#123;  </span><br><span class="line">            ensureCapacity(buf.length);  </span><br><span class="line">            buffer.put(buf);  </span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>;  </span><br><span class="line">        &#125;  </span><br><span class="line">  </span><br><span class="line">        <span class="keyword">private</span> ByteBufferBuilder <span class="title function_">append</span><span class="params">(<span class="type">byte</span> b)</span> &#123;  </span><br><span class="line">            ensureCapacity(<span class="number">1</span>);  </span><br><span class="line">            buffer.put(b);  </span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>;  </span><br><span class="line">        &#125;  </span><br><span class="line">  </span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">ensureCapacity</span><span class="params">(<span class="type">int</span> len)</span> &#123;  </span><br><span class="line">            <span class="keyword">if</span> (buffer.remaining() &lt; len) &#123;  </span><br><span class="line">                growBuffer(len);  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125;  </span><br><span class="line">  </span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">growBuffer</span><span class="params">(<span class="type">int</span> len)</span> &#123;  </span><br><span class="line">            <span class="type">int</span> <span class="variable">capacity</span> <span class="operator">=</span> buffer.capacity() + Math.max(len, INITIAL_CAPACITY);  </span><br><span class="line">            buffer = ByteBuffer.allocate(capacity).put(toArray());  </span><br><span class="line">        &#125;  </span><br><span class="line">  </span><br><span class="line">        <span class="keyword">private</span> <span class="type">byte</span>[] toArray() &#123;  </span><br><span class="line">            <span class="type">byte</span>[] array = <span class="keyword">new</span> <span class="title class_">byte</span>[buffer.position()];  </span><br><span class="line">            buffer.rewind();  </span><br><span class="line">            buffer.get(array);  </span><br><span class="line">            <span class="keyword">return</span> array;  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>解码器，从 byte[] -&gt; RedisToken</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SimpleRedisDecoder</span> &#123;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> RedisToken <span class="title function_">decode</span><span class="params">(<span class="type">byte</span>[] bytes)</span> &#123;  </span><br><span class="line">	    <span class="type">RedisSource</span> <span class="variable">source</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RedisSource</span>(bytes);</span><br><span class="line">        <span class="type">String</span> <span class="variable">line</span> <span class="operator">=</span> source.readLine();  </span><br><span class="line">        <span class="keyword">if</span> (line != <span class="literal">null</span>) &#123;  </span><br><span class="line">            <span class="keyword">return</span> parseToken(source, line);  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">UnknownRedisToken</span>(<span class="string">&quot;&quot;</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span> RedisToken <span class="title function_">parseToken</span><span class="params">(RedisSource source, String line)</span> &#123;  </span><br><span class="line">        <span class="type">RedisToken</span> <span class="variable">token</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UnknownRedisToken</span>(<span class="string">&quot;&quot;</span>);  </span><br><span class="line">        <span class="keyword">if</span> (line != <span class="literal">null</span> &amp;&amp; !line.isEmpty()) &#123;  </span><br><span class="line">            <span class="type">byte</span> <span class="variable">b</span> <span class="operator">=</span> line.getBytes(StandardCharsets.UTF_8)[<span class="number">0</span>];  </span><br><span class="line">            <span class="keyword">switch</span> (b) &#123;  </span><br><span class="line">                <span class="keyword">case</span> STATUS:  </span><br><span class="line">                    token = RedisToken.status(line.substring(<span class="number">1</span>));  </span><br><span class="line">                    <span class="keyword">break</span>;  </span><br><span class="line">                <span class="keyword">case</span> ERROR:  </span><br><span class="line">                    token = RedisToken.error(line.substring(<span class="number">1</span>));  </span><br><span class="line">                    <span class="keyword">break</span>;  </span><br><span class="line">                <span class="keyword">case</span> INTEGER:  </span><br><span class="line">                    token = RedisToken.integer(Integer.parseInt(line.substring(<span class="number">1</span>)));  </span><br><span class="line">                    <span class="keyword">break</span>;  </span><br><span class="line">                <span class="keyword">case</span> STRING:  </span><br><span class="line">                    <span class="type">int</span> <span class="variable">length</span> <span class="operator">=</span> Integer.parseInt(line.substring(<span class="number">1</span>));  </span><br><span class="line">                    <span class="keyword">if</span> (length &gt; <span class="number">0</span>) &#123;  </span><br><span class="line">                        token = RedisToken.string(source.readString(length));  </span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;  </span><br><span class="line">                        token = RedisToken.string(<span class="literal">null</span>);  </span><br><span class="line">                    &#125;  </span><br><span class="line">                    <span class="keyword">break</span>;  </span><br><span class="line">                <span class="keyword">case</span> ARRAY:  </span><br><span class="line">                    <span class="type">int</span> <span class="variable">size</span> <span class="operator">=</span> Integer.parseInt(line.substring(<span class="number">1</span>));  </span><br><span class="line">                    <span class="keyword">if</span> (size &gt; <span class="number">0</span>) &#123;  </span><br><span class="line">                        List&lt;RedisToken&gt; array = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(size);  </span><br><span class="line">                        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; size; i++) &#123;  </span><br><span class="line">                            array.add(parseToken(source, source.readLine()));  </span><br><span class="line">                        &#125;  </span><br><span class="line">                        token = RedisToken.array(array);  </span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;  </span><br><span class="line">                        token = RedisToken.array(Collections.emptyList());  </span><br><span class="line">                    &#125;  </span><br><span class="line">                    <span class="keyword">break</span>;  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125;  </span><br><span class="line">  </span><br><span class="line">        <span class="keyword">return</span> token;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RedisSource</span> &#123;  </span><br><span class="line">	  </span><br><span class="line">	    <span class="keyword">private</span> <span class="keyword">final</span> ByteBuffer buffer;  </span><br><span class="line">	  </span><br><span class="line">	    <span class="keyword">public</span> <span class="title function_">SimpleRedisSource</span><span class="params">(<span class="type">byte</span>[] bytes)</span> &#123;  </span><br><span class="line">	        <span class="built_in">this</span>.buffer = ByteBuffer.wrap(bytes);  </span><br><span class="line">	    &#125;  </span><br><span class="line">	  </span><br><span class="line">	    <span class="meta">@Override</span>  </span><br><span class="line">	    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">available</span><span class="params">()</span> &#123;  </span><br><span class="line">	        <span class="keyword">return</span> buffer.capacity();  </span><br><span class="line">	    &#125;  </span><br><span class="line">	  </span><br><span class="line">	    <span class="meta">@Override</span>  </span><br><span class="line">	    <span class="keyword">public</span> String <span class="title function_">readLine</span><span class="params">()</span> &#123;  </span><br><span class="line">	        <span class="type">int</span> <span class="variable">eol</span> <span class="operator">=</span> findEndOfLine();  </span><br><span class="line">	        <span class="type">int</span> <span class="variable">size</span> <span class="operator">=</span> eol - buffer.position();  </span><br><span class="line">	        <span class="keyword">return</span> readString(size);  </span><br><span class="line">	    &#125;  </span><br><span class="line">	  </span><br><span class="line">	    <span class="keyword">private</span> <span class="type">int</span> <span class="title function_">findEndOfLine</span><span class="params">()</span> &#123;  </span><br><span class="line">	        <span class="type">int</span> <span class="variable">position</span> <span class="operator">=</span> buffer.position();  </span><br><span class="line">	        <span class="type">int</span> <span class="variable">limit</span> <span class="operator">=</span> buffer.limit();  </span><br><span class="line">	  </span><br><span class="line">	        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> position; i &lt; (limit - <span class="number">1</span>); i++) &#123;  </span><br><span class="line">	            <span class="type">byte</span> <span class="variable">b1</span> <span class="operator">=</span> buffer.get(i);  </span><br><span class="line">	            <span class="type">byte</span> <span class="variable">b2</span> <span class="operator">=</span> buffer.get(i + <span class="number">1</span>);  </span><br><span class="line">	            <span class="keyword">if</span> (b1 == <span class="string">&#x27;\r&#x27;</span> &amp;&amp; b2 == <span class="string">&#x27;\n&#x27;</span>) &#123;  </span><br><span class="line">	                <span class="keyword">return</span> i;  </span><br><span class="line">	            &#125;  </span><br><span class="line">	        &#125;  </span><br><span class="line">	        <span class="keyword">return</span> -<span class="number">1</span>;  </span><br><span class="line">	    &#125;  </span><br><span class="line">	  </span><br><span class="line">	    <span class="meta">@Override</span>  </span><br><span class="line">	    <span class="keyword">public</span> String <span class="title function_">readString</span><span class="params">(<span class="type">int</span> length)</span> &#123;  </span><br><span class="line">	        <span class="type">byte</span>[] bytes = readBytes(length);  </span><br><span class="line">	        buffer.get();  </span><br><span class="line">	        buffer.get();  </span><br><span class="line">	        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">String</span>(bytes, StandardCharsets.UTF_8);  </span><br><span class="line">	    &#125;  </span><br><span class="line">	  </span><br><span class="line">	    <span class="keyword">private</span> <span class="type">byte</span>[] readBytes(<span class="type">int</span> size) &#123;  </span><br><span class="line">	        <span class="type">byte</span>[] bytes = <span class="keyword">new</span> <span class="title class_">byte</span>[size];  </span><br><span class="line">	        buffer.get(bytes);  </span><br><span class="line">	        <span class="keyword">return</span> bytes;  </span><br><span class="line">	    &#125;  </span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Protocol/" rel="tag"># Protocol</a>
+              <a href="/tags/Redis/" rel="tag"># Redis</a>
+              <a href="/tags/RESP/" rel="tag"># RESP</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/04/17/Log-Per-Request/" rel="prev" title="Spring Boot: Log Per Request">
+                  <i class="fa fa-angle-left"></i> Spring Boot: Log Per Request
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">mawen12</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
