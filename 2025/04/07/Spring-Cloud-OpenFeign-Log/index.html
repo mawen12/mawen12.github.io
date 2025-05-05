@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"mawen12.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="❓一、如何让 Spring Cloud OpenFeign 输出请求响应日志？🔧 1. 配置日志配置 123456789101112131415package com.github.mawen12.config;import feign.Logger;import org.springframework.context.annotation.Bean;import org.springframe">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring Cloud OpenFeign: Log">
+<meta property="og:url" content="https://mawen12.github.io/2025/04/07/Spring-Cloud-OpenFeign-Log/index.html">
+<meta property="og:site_name" content="技术旷野">
+<meta property="og:description" content="❓一、如何让 Spring Cloud OpenFeign 输出请求响应日志？🔧 1. 配置日志配置 123456789101112131415package com.github.mawen12.config;import feign.Logger;import org.springframework.context.annotation.Bean;import org.springframe">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-04-07T13:43:02.000Z">
+<meta property="article:modified_time" content="2025-05-05T14:07:03.180Z">
+<meta property="article:author" content="mawen12">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Log">
+<meta property="article:tag" content="Spring Cloud">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://mawen12.github.io/2025/04/07/Spring-Cloud-OpenFeign-Log/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh_CN","comments":true,"permalink":"https://mawen12.github.io/2025/04/07/Spring-Cloud-OpenFeign-Log/","path":"2025/04/07/Spring-Cloud-OpenFeign-Log/","title":"Spring Cloud OpenFeign: Log"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Spring Cloud OpenFeign: Log | 技术旷野</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PNNJ27E624"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-PNNJ27E624","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="技术旷野" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">技术旷野</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">技术点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E2%9D%93%E4%B8%80%E3%80%81%E5%A6%82%E4%BD%95%E8%AE%A9-Spring-Cloud-OpenFeign-%E8%BE%93%E5%87%BA%E8%AF%B7%E6%B1%82%E5%93%8D%E5%BA%94%E6%97%A5%E5%BF%97%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">❓一、如何让 Spring Cloud OpenFeign 输出请求响应日志？</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%94%A7-1-%E9%85%8D%E7%BD%AE"><span class="nav-number">1.1.</span> <span class="nav-text">🔧 1. 配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%9C%85-2-%E6%95%88%E6%9E%9C%E5%B1%95%E7%A4%BA%E5%8F%8A%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%EF%BC%88%E6%97%A5%E5%BF%97%E5%89%8D%E7%BC%80%E5%B7%B2%E5%8E%BB%E9%99%A4%EF%BC%8C%E4%BB%85%E4%BF%9D%E7%95%99%E6%97%A5%E5%BF%97%E5%86%85%E5%AE%B9%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">✅ 2. 效果展示及日志分析（日志前缀已去除，仅保留日志内容）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%94%8D-%E4%BA%8C%E3%80%81Spring-Cloud-OpenFeign-%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">🔍 二、Spring Cloud OpenFeign 请求处理流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-SynchronousMethodHandler"><span class="nav-number">2.1.</span> <span class="nav-text">1. SynchronousMethodHandler</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Slf4jLogger"><span class="nav-number">2.2.</span> <span class="nav-text">2. Slf4jLogger</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%93%8C-%E4%B8%89%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">📌 三、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">mawen12</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh_CN">
+    <link itemprop="mainEntityOfPage" href="https://mawen12.github.io/2025/04/07/Spring-Cloud-OpenFeign-Log/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="mawen12">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术旷野">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Spring Cloud OpenFeign: Log | 技术旷野">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring Cloud OpenFeign: Log
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-04-07 21:43:02" itemprop="dateCreated datePublished" datetime="2025-04-07T21:43:02+08:00">2025-04-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2025-05-05 22:07:03" itemprop="dateModified" datetime="2025-05-05T22:07:03+08:00">2025-05-05</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="❓一、如何让-Spring-Cloud-OpenFeign-输出请求响应日志？"><a href="#❓一、如何让-Spring-Cloud-OpenFeign-输出请求响应日志？" class="headerlink" title="❓一、如何让 Spring Cloud OpenFeign 输出请求响应日志？"></a>❓一、如何让 Spring Cloud OpenFeign 输出请求响应日志？</h1><h2 id="🔧-1-配置"><a href="#🔧-1-配置" class="headerlink" title="🔧 1. 配置"></a>🔧 1. 配置</h2><p><strong>日志配置</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.github.mawen12.config;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> feign.Logger;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FeignCommonConfig</span> &#123;</span><br><span class="line">	</span><br><span class="line">    <span class="comment">// 可选有FULL, HEADERS, BASIC, NONE</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> Logger.Level <span class="title function_">fullLevel</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> Logger.Level.BASIC;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>应用配置</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.github.mawen12.client;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.github.mawen12.config.FeignCommonConfig;</span><br><span class="line"><span class="keyword">import</span> com.github.mawen12.learn.springcloud.comment.bean.Comment;</span><br><span class="line"><span class="keyword">import</span> org.springframework.cloud.openfeign.FeignClient;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.*;</span><br><span class="line"></span><br><span class="line"><span class="meta">@FeignClient(name = &quot;comments&quot;, url = &quot;$&#123;feign.comment.url&#125;&quot;, path = &quot;/api/comments&quot;, configuration = FeignCommonConfig.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">CommentFeignClient</span> &#123;</span><br><span class="line">    <span class="meta">@PutMapping(&quot;/&#123;id&#125;&quot;)</span></span><br><span class="line">    Comment <span class="title function_">update</span><span class="params">(<span class="meta">@PathVariable(&quot;id&quot;)</span> Integer id, <span class="meta">@RequestBody</span> Comment post)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>设置日志级别</strong></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># comment的url</span></span><br><span class="line"><span class="attr">feign.comment.url</span>=<span class="string">http://localhost:18082</span></span><br><span class="line"><span class="comment"># 在application.properties中配置</span></span><br><span class="line"><span class="attr">logging.level.com.github.mawen12.client</span>=<span class="string">DEBUG</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="✅-2-效果展示及日志分析（日志前缀已去除，仅保留日志内容）"><a href="#✅-2-效果展示及日志分析（日志前缀已去除，仅保留日志内容）" class="headerlink" title="✅ 2. 效果展示及日志分析（日志前缀已去除，仅保留日志内容）"></a>✅ 2. 效果展示及日志分析（日志前缀已去除，仅保留日志内容）</h2><p><strong>BASIC</strong></p>
+<p>该级别仅打印<strong>请求方法</strong>、<strong>请求URL</strong>、<strong>HTTP版本</strong>、<strong>类名和方法名</strong>、<strong>响应状态</strong>、<strong>请求耗时</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">: [CommentFeignClient#update] ---&gt; PUT http://localhost:18082/api/comments/1 HTTP/1.1</span><br><span class="line">: [CommentFeignClient#update] &lt;--- HTTP/1.1 200 (43ms)</span><br></pre></td></tr></table></figure>
+
+<p><strong>HEADERS</strong></p>
+<p>打印<strong>BASIC</strong>的所有信息，以及<strong>请求头</strong>、<strong>响应头</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">: [CommentFeignClient#update] ---&gt; PUT http://localhost:18082/api/comments/1 HTTP/1.1</span><br><span class="line">: [CommentFeignClient#update] Content-Length: 92</span><br><span class="line">: [CommentFeignClient#update] Content-Type: application/json</span><br><span class="line">: [CommentFeignClient#update] ---&gt; END HTTP (92-byte body)</span><br><span class="line">: [CommentFeignClient#update] &lt;--- HTTP/1.1 200 (22ms)</span><br><span class="line">: [CommentFeignClient#update] connection: keep-alive</span><br><span class="line">: [CommentFeignClient#update] content-type: application/json</span><br><span class="line">: [CommentFeignClient#update] date: Mon, 07 Apr 2025 12:58:47 GMT</span><br><span class="line">: [CommentFeignClient#update] keep-alive: timeout=60</span><br><span class="line">: [CommentFeignClient#update] transfer-encoding: chunked</span><br><span class="line">: [CommentFeignClient#update] &lt;--- END HTTP (92-byte body)</span><br></pre></td></tr></table></figure>
+
+<p><strong>FULL</strong></p>
+<p>打印<strong>HEADERS</strong>的所有信息，以及<strong>请求体</strong>、<strong>响应体</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">: [CommentFeignClient#update] ---&gt; PUT http://localhost:18082/api/comments/1 HTTP/1.1</span><br><span class="line">: [CommentFeignClient#update] Content-Length: 92</span><br><span class="line">: [CommentFeignClient#update] Content-Type: application/json</span><br><span class="line">: [CommentFeignClient#update] </span><br><span class="line">: [CommentFeignClient#update] &#123;&quot;id&quot;:1,&quot;postId&quot;:1,&quot;name&quot;:&quot;id&quot;,&quot;email&quot;:&quot;Eliseo@gardner.biz&quot;,&quot;body&quot;:&quot;laudantium&quot;,&quot;version&quot;:1&#125;</span><br><span class="line">: [CommentFeignClient#update] ---&gt; END HTTP (92-byte body)</span><br><span class="line">: [CommentFeignClient#update] &lt;--- HTTP/1.1 200 (59ms)</span><br><span class="line">: [CommentFeignClient#update] connection: keep-alive</span><br><span class="line">: [CommentFeignClient#update] content-type: application/json</span><br><span class="line">: [CommentFeignClient#update] date: Mon, 07 Apr 2025 12:57:36 GMT</span><br><span class="line">: [CommentFeignClient#update] keep-alive: timeout=60</span><br><span class="line">: [CommentFeignClient#update] transfer-encoding: chunked</span><br><span class="line">: [CommentFeignClient#update] </span><br><span class="line">: [CommentFeignClient#update] &#123;&quot;id&quot;:1,&quot;postId&quot;:1,&quot;name&quot;:&quot;id&quot;,&quot;email&quot;:&quot;Eliseo@gardner.biz&quot;,&quot;body&quot;:&quot;laudantium&quot;,&quot;version&quot;:2&#125;</span><br><span class="line">: [CommentFeignClient#update] &lt;--- END HTTP (92-byte body)</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="🔍-二、Spring-Cloud-OpenFeign-请求处理流程"><a href="#🔍-二、Spring-Cloud-OpenFeign-请求处理流程" class="headerlink" title="🔍 二、Spring Cloud OpenFeign 请求处理流程"></a>🔍 二、Spring Cloud OpenFeign 请求处理流程</h1><p><code>Spring Cloud OpenFeign</code>的日志实际上是由<code>Feign</code>进行请求时打印的。上面编写的接口<code>CommentFeignClient</code>的底层实现为<code>FeignInvocationHandler</code>，核心字段为<code>MethodHandler</code>，该接口的实现之一为<code>SynchronousMethodHandler</code>。</p>
+<h2 id="1-SynchronousMethodHandler"><a href="#1-SynchronousMethodHandler" class="headerlink" title="1. SynchronousMethodHandler"></a>1. SynchronousMethodHandler</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> feign;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 此类中主要是判断Logger.Level不为NONE时，才会触发日志记录</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SynchronousMethodHandler</span> implement MethodHandler &#123;</span><br><span class="line">	<span class="comment">// 日志记录器，使用系统中注册的</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> Logger logger;</span><br><span class="line">	<span class="comment">// 日志级别，支持NULL, BASIC, HEADERS, FULL，此处值就是之前FeignCommonConfig中注册的Bean</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> Logger.Level logLevel;</span><br><span class="line">	</span><br><span class="line">	Object <span class="title function_">executeAndDecode</span><span class="params">(RequestTemplate template, Options options)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">         <span class="comment">// 记录请求方法、URL、请求头（要求HEADER或FULL）和请求体（要求FULL）</span></span><br><span class="line">		<span class="keyword">if</span> (logLevel != Logger.Level.NONE)</span><br><span class="line">      		logger.logRequest(metadata.configKey(), logLevel, request);</span><br><span class="line">	    <span class="type">long</span> <span class="variable">start</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line">    	<span class="keyword">try</span> &#123;</span><br><span class="line">      		response = client.execute(request, options);</span><br><span class="line">    	&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">             <span class="comment">// 记录异常</span></span><br><span class="line">      		<span class="keyword">if</span> (logLevel != Logger.Level.NONE)</span><br><span class="line">        		logger.logIOException(metadata.configKey(), logLevel, e, elapsedTime(start));</span><br><span class="line">      		<span class="keyword">throw</span> errorExecuting(request, e);</span><br><span class="line">    	&#125;</span><br><span class="line"></span><br><span class="line">    	<span class="type">long</span> <span class="variable">elapsedTime</span> <span class="operator">=</span> TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);</span><br><span class="line">        <span class="comment">// 记录响应状态、响应耗时和响应头（要求HEADER或FULL）和响应体（要求FULL）</span></span><br><span class="line">    	<span class="keyword">return</span> responseHandler.handleResponse(metadata.configKey(), response, metadata.returnType(), elapsedTime);</span><br><span class="line">  	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-Slf4jLogger"><a href="#2-Slf4jLogger" class="headerlink" title="2. Slf4jLogger"></a>2. Slf4jLogger</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 此类负责使用slf4j进行日志记录，其仅支持DEBUG级别(隐式包含TRACE级别)</span></span><br><span class="line"><span class="comment">// 这也是设置logging.level.com.github.mawen12.client=DEBUG的原因所在</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Slf4jLogger</span> <span class="keyword">extends</span> <span class="title class_">Logger</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> org.slf4j.Logger logger;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">logRequest</span><span class="params">(String configKey, Logger.Level logLevel, Request request)</span> &#123;</span><br><span class="line">        <span class="comment">// 必须是DEBUG级别</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.logger.isDebugEnabled()) &#123;</span><br><span class="line">            <span class="built_in">super</span>.logRequest(configKey, logLevel, request);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> Response <span class="title function_">logAndRebufferResponse</span><span class="params">(String configKey, Logger.Level logLevel, Response response, <span class="type">long</span> elapsedTime)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="comment">// 必须是DEBUG级别</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.logger.isDebugEnabled() ? </span><br><span class="line">            <span class="built_in">super</span>.logAndRebufferResponse(configKey, logLevel, response, elapsedTime) : response;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">log</span><span class="params">(String configKey, String format, Object... args)</span> &#123;</span><br><span class="line">        <span class="comment">// 必须是DEBUG级别</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.logger.isDebugEnabled()) &#123;</span><br><span class="line">            <span class="built_in">this</span>.logger.debug(String.format(methodTag(configKey) + format, args));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="📌-三、总结"><a href="#📌-三、总结" class="headerlink" title="📌 三、总结"></a>📌 三、总结</h1><p>通过上述示例和代码可以看出，必须同时设置<code>Logger.LEVEL</code>+<code>logging.level</code>，才能确保<code>Spring Cloud OpenFeign</code>的日志正常输出。</p>
+<ul>
+<li>SynchronousMethodHandler 使用 Logger.level</li>
+<li>Slf4jLogger 使用 logging.level</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/Log/" rel="tag"># Log</a>
+              <a href="/tags/Spring-Cloud/" rel="tag"># Spring Cloud</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/04/15/MyBatis-Plus-Interceptor/" rel="next" title="MyBatis Plus: Interceptor">
+                  MyBatis Plus: Interceptor <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">mawen12</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

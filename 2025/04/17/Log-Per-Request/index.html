@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"mawen12.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="❓如何实现 Spring Boot 让请求日志独立记录？1. 依赖123456789101112131415&lt;dependency&gt;    &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;    &lt;artifactId&gt;spring-boot-starter-web&lt;&#x2F;artifactId&gt;    &amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring Boot: Log Per Request">
+<meta property="og:url" content="https://mawen12.github.io/2025/04/17/Log-Per-Request/index.html">
+<meta property="og:site_name" content="技术旷野">
+<meta property="og:description" content="❓如何实现 Spring Boot 让请求日志独立记录？1. 依赖123456789101112131415&lt;dependency&gt;    &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;    &lt;artifactId&gt;spring-boot-starter-web&lt;&#x2F;artifactId&gt;    &amp;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-04-17T13:37:02.000Z">
+<meta property="article:modified_time" content="2025-05-05T14:07:03.180Z">
+<meta property="article:author" content="mawen12">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Spring Boot">
+<meta property="article:tag" content="Log">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://mawen12.github.io/2025/04/17/Log-Per-Request/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh_CN","comments":true,"permalink":"https://mawen12.github.io/2025/04/17/Log-Per-Request/","path":"2025/04/17/Log-Per-Request/","title":"Spring Boot: Log Per Request"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Spring Boot: Log Per Request | 技术旷野</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PNNJ27E624"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-PNNJ27E624","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="技术旷野" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">技术旷野</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">技术点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E2%9D%93%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0-Spring-Boot-%E8%AE%A9%E8%AF%B7%E6%B1%82%E6%97%A5%E5%BF%97%E7%8B%AC%E7%AB%8B%E8%AE%B0%E5%BD%95%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">❓如何实现 Spring Boot 让请求日志独立记录？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%BE%9D%E8%B5%96"><span class="nav-number">1.0.1.</span> <span class="nav-text">1. 依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%85%8D%E7%BD%AE"><span class="nav-number">1.0.2.</span> <span class="nav-text">2. 配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-log4j2-xml"><span class="nav-number">1.1.</span> <span class="nav-text">3. log4j2.xml</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-RequestLoggingFilter"><span class="nav-number">1.2.</span> <span class="nav-text">4. RequestLoggingFilter</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%94%8D-%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">🔍 实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-RoutingAppender-%E2%80%A6"><span class="nav-number">2.0.1.</span> <span class="nav-text">1. RoutingAppender(…)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-start"><span class="nav-number">2.0.2.</span> <span class="nav-text">2. start()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-append-LogEvent"><span class="nav-number">2.0.3.</span> <span class="nav-text">3. append(LogEvent)</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">mawen12</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh_CN">
+    <link itemprop="mainEntityOfPage" href="https://mawen12.github.io/2025/04/17/Log-Per-Request/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="mawen12">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术旷野">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Spring Boot: Log Per Request | 技术旷野">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring Boot: Log Per Request
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-04-17 21:37:02" itemprop="dateCreated datePublished" datetime="2025-04-17T21:37:02+08:00">2025-04-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2025-05-05 22:07:03" itemprop="dateModified" datetime="2025-05-05T22:07:03+08:00">2025-05-05</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="❓如何实现-Spring-Boot-让请求日志独立记录？"><a href="#❓如何实现-Spring-Boot-让请求日志独立记录？" class="headerlink" title="❓如何实现 Spring Boot 让请求日志独立记录？"></a>❓如何实现 Spring Boot 让请求日志独立记录？</h1><h3 id="1-依赖"><a href="#1-依赖" class="headerlink" title="1. 依赖"></a>1. 依赖</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-logging<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-log4j2<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-配置"><a href="#2-配置" class="headerlink" title="2. 配置"></a>2. 配置</h3><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">logging.config</span>=<span class="string">classpath:log4j2.xml</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-log4j2-xml"><a href="#3-log4j2-xml" class="headerlink" title="3. log4j2.xml"></a>3. log4j2.xml</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">Configuration</span> <span class="attr">status</span>=<span class="string">&quot;WARN&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Property</span> <span class="attr">name</span>=<span class="string">&quot;LOG_EXCEPTION_CONVERSION_WORD&quot;</span>&gt;</span>%xwEx<span class="tag">&lt;/<span class="name">Property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Property</span> <span class="attr">name</span>=<span class="string">&quot;LOG_LEVEL_PATTERN&quot;</span>&gt;</span>%5p<span class="tag">&lt;/<span class="name">Property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Property</span> <span class="attr">name</span>=<span class="string">&quot;LOG_DATEFORMAT_PATTERN&quot;</span>&gt;</span>yyyy-MM-dd HH:mm:ss<span class="tag">&lt;/<span class="name">Property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Property</span> <span class="attr">name</span>=<span class="string">&quot;CONSOLE_LOG_PATTERN&quot;</span>&gt;</span>%clr&#123;%d&#123;$&#123;sys:LOG_DATEFORMAT_PATTERN&#125;&#125;&#125;&#123;faint&#125; %clr&#123;$&#123;sys:LOG_LEVEL_PATTERN&#125;&#125; %clr&#123;%pid&#125;&#123;magenta&#125; %clr&#123;--- [%15.15t] $&#123;sys:LOG_CORRELATION_PATTERN:-&#125;&#125;&#123;faint&#125;%clr&#123;%-40.40c&#123;1.&#125;&#125;&#123;cyan&#125; %clr&#123;:&#125;&#123;faint&#125; %m%n$&#123;sys:LOG_EXCEPTION_CONVERSION_WORD&#125;<span class="tag">&lt;/<span class="name">Property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Property</span> <span class="attr">name</span>=<span class="string">&quot;FILE_LOG_PATTERN&quot;</span>&gt;</span>%d&#123;$&#123;sys:LOG_DATEFORMAT_PATTERN&#125;&#125; $&#123;sys:LOG_LEVEL_PATTERN&#125; %pid --- [%15.15t] $&#123;sys:LOG_CORRELATION_PATTERN:-&#125;%-40.40c&#123;1.&#125; : %m%n$&#123;sys:LOG_EXCEPTION_CONVERSION_WORD&#125;<span class="tag">&lt;/<span class="name">Property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">Properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">Appenders</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Console</span> <span class="attr">name</span>=<span class="string">&quot;Console&quot;</span> <span class="attr">target</span>=<span class="string">&quot;SYSTEM_OUT&quot;</span> <span class="attr">follow</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">PatternLayout</span> <span class="attr">pattern</span>=<span class="string">&quot;$&#123;sys:CONSOLE_LOG_PATTERN&#125;&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">Console</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">Routing</span> <span class="attr">name</span>=<span class="string">&quot;RequestRouting&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">Routes</span> <span class="attr">pattern</span>=<span class="string">&quot;$&#123;ctx:requestId&#125;&quot;</span>&gt;</span></span><br><span class="line">                <span class="comment">&lt;!-- default route --&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">Route</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">RollingFile</span> <span class="attr">name</span>=<span class="string">&quot;Rolling-$&#123;ctx:requestId&#125;&quot;</span></span></span><br><span class="line"><span class="tag">                                 <span class="attr">fileName</span>=<span class="string">&quot;C:/home/demo/logs/$&#123;ctx:requestId&#125;.log&quot;</span></span></span><br><span class="line"><span class="tag">                                 <span class="attr">filePattern</span>=<span class="string">&quot;C:/home/demo/logs/$&#123;ctx:requestId&#125;.%i.log.gz&quot;</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">PatternLayout</span> <span class="attr">pattern</span>=<span class="string">&quot;$&#123;sys:FILE_LOG_PATTERN&#125;&quot;</span>/&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">SizeBasedTriggeringPolicy</span> <span class="attr">size</span>=<span class="string">&quot;10MB&quot;</span> /&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="name">RollingFile</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">Route</span>&gt;</span></span><br><span class="line">                <span class="comment">&lt;!-- 当ThreadContext中不存在requestId时，$&#123;ctx:requestId&#125;的评估结果就是$&#123;ctx:requestId&#125; --&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">Route</span> <span class="attr">ref</span>=<span class="string">&quot;Console&quot;</span> <span class="attr">key</span>=<span class="string">&quot;$&#123;ctx:requestId&#125;&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">Routes</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 存活策略，10s --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">IdlePurgePolicy</span> <span class="attr">timeToLive</span>=<span class="string">&quot;10&quot;</span> <span class="attr">timeUnit</span>=<span class="string">&quot;SECONDS&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">Routing</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;/<span class="name">Appenders</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Loggers</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Root</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">AppenderRef</span> <span class="attr">ref</span>=<span class="string">&quot;RequestRouting&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">Root</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">Loggers</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">Configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-RequestLoggingFilter"><a href="#4-RequestLoggingFilter" class="headerlink" title="4. RequestLoggingFilter"></a>4. RequestLoggingFilter</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RequestLogOncePerRequestFilter</span> <span class="keyword">extends</span> <span class="title class_">OncePerRequestFilter</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">REQUEST_ID_HEADER</span> <span class="operator">=</span> <span class="string">&quot;request-id&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">REQUEST_ID_CONTEXT</span> <span class="operator">=</span> <span class="string">&quot;requestId&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doFilterInternal</span><span class="params">(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">        <span class="comment">// 从请求头读取 request-id 的值，并保存到 MDC 中，</span></span><br><span class="line">        <span class="comment">// 当使用 Log4j2 作为实现时，对应会使用ThreadContext作为MDC的实现</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">requestId</span> <span class="operator">=</span> request.getHeader(REQUEST_ID_HEADER);</span><br><span class="line">        <span class="keyword">if</span> (StringUtils.hasText(requestId)) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                MDC.put(REQUEST_ID_CONTEXT, requestId);</span><br><span class="line">                filterChain.doFilter(request, response);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">finally</span> &#123;</span><br><span class="line">                MDC.remove(REQUEST_ID_CONTEXT);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            filterChain.doFilter(request, response);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="🔍-实现原理"><a href="#🔍-实现原理" class="headerlink" title="🔍 实现原理"></a>🔍 实现原理</h1><p>log4j2.xml 中的 <code>Routing</code> 在代码库中对应 <code>RoutingAppender</code>。</p>
+<h3 id="1-RoutingAppender-…"><a href="#1-RoutingAppender-…" class="headerlink" title="1. RoutingAppender(…)"></a>1. RoutingAppender(…)</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="title function_">RoutingAppender</span><span class="params">(...)</span> &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">final</span> Route route : routes.getRoutes()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (route.getKey() == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (defRoute == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="comment">// 将第一个没有指定 key 的route视作default route</span></span><br><span class="line">                <span class="comment">// 对应到上述的log4j2.xml，就是第一个&lt;Route&gt;</span></span><br><span class="line">                defRoute = route;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    defaultRoute = defRoute;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-start"><a href="#2-start" class="headerlink" title="2. start()"></a>2. start()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">start</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="comment">// 注册静态route，这里的静态是指使用 ref 引用其他 Appender 的route</span></span><br><span class="line">    <span class="comment">// 对用上面的 log4j2.xml，满足此场景的便是第二个 route</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">final</span> Route route : routes.getRoutes()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (route.getAppenderRef() != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">Appender</span> <span class="variable">appender</span> <span class="operator">=</span> configuration.getAppender(route.getAppenderRef());</span><br><span class="line">            <span class="keyword">if</span> (appender != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">final</span> <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> route == defaultRoute ? DEFAULT_KEY : route.getKey();</span><br><span class="line">                <span class="comment">// key: $&#123;ctx:requestId&#125;, value: ConsoleAppender</span></span><br><span class="line">                referencedAppenders.put(key, <span class="keyword">new</span> <span class="title class_">ReferencedRouteAppenderControl</span>(appender));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-append-LogEvent"><a href="#3-append-LogEvent" class="headerlink" title="3. append(LogEvent)"></a>3. append(LogEvent)</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">append</span><span class="params">(LogEvent event)</span> &#123;</span><br><span class="line">    <span class="comment">// 读取 &lt;Routes&gt; 上的 pattern，对应 log4j2.xml 为 $&#123;ctx:requestId&#125;</span></span><br><span class="line">    <span class="keyword">final</span> <span class="type">String</span> <span class="variable">pattern</span> <span class="operator">=</span> routes.getPattern(event, scriptStaticVariables);</span><br><span class="line">    <span class="comment">// 对pattern进行评估，其结果就是key</span></span><br><span class="line">    <span class="comment">// 如果ThreadContext中不存在requestId，其评估结果为：$&#123;ctx:requestId&#125;</span></span><br><span class="line">    <span class="comment">// 如果ThreadContext中存在requestId，比如123，其评估结果为：123</span></span><br><span class="line">    <span class="keyword">final</span> <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> pattern != <span class="literal">null</span> ? configuration.getStrSubstitutor().replace(event, pattern) :</span><br><span class="line">            defaultRoute.getKey() != <span class="literal">null</span> ? defaultRoute.getKey() : DEFAULT_KEY;</span><br><span class="line">    <span class="comment">// 根据key的值匹配Route，并获取对应的Appender</span></span><br><span class="line">    <span class="comment">// 当评估结果为：$&#123;ctx:requestId&#125;，key能匹配上，使用第二个Route对应的ConsoleAppender</span></span><br><span class="line">    <span class="comment">// 当评估结果为：123（举例），因为没有key能匹配上，所以会使用defaultRoute创建Appender，对应到log4j2.xml的配置，此处会创建RollingFileAppender，文件为：C:/home/demo/logs/123.log</span></span><br><span class="line">    <span class="keyword">final</span> <span class="type">RouteAppenderControl</span> <span class="variable">control</span> <span class="operator">=</span> getControl(key, event);</span><br><span class="line">    <span class="keyword">if</span> (control != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 将事件分发给对应的Appender</span></span><br><span class="line">            control.callAppender(event);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            control.release();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 触发清除策略</span></span><br><span class="line">    <span class="comment">// 使用线程池调用定时任务，在后台清理上述创建的RollingFileAppender，如果没有定义清除策略，那么内存中的RollingFileAppender是只增不减的，会发生内存泄露</span></span><br><span class="line">    updatePurgePolicy(key, event);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/Spring-Boot/" rel="tag"># Spring Boot</a>
+              <a href="/tags/Log/" rel="tag"># Log</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/04/15/MyBatis-Plus-Interceptor/" rel="prev" title="MyBatis Plus: Interceptor">
+                  <i class="fa fa-angle-left"></i> MyBatis Plus: Interceptor
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">mawen12</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
