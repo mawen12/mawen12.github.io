@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"mawen12.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="监控 JVM、Tomcat、Druid 监控抽象类该类负责初始化调度线程池，该线程池中仅有一个线程，每隔指定间隔执行 run() 方法  123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051@Slf4j  public abstract class Abstract">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java Monitor">
+<meta property="og:url" content="https://mawen12.github.io/2025/05/18/Java%20Monitor/index.html">
+<meta property="og:site_name" content="技术旷野">
+<meta property="og:description" content="监控 JVM、Tomcat、Druid 监控抽象类该类负责初始化调度线程池，该线程池中仅有一个线程，每隔指定间隔执行 run() 方法  123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051@Slf4j  public abstract class Abstract">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-05-18T00:57:02.000Z">
+<meta property="article:modified_time" content="2025-05-18T01:47:18.824Z">
+<meta property="article:author" content="mawen12">
+<meta property="article:tag" content="#Java">
+<meta property="article:tag" content="#Monitor">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://mawen12.github.io/2025/05/18/Java%20Monitor/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh_CN","comments":true,"permalink":"https://mawen12.github.io/2025/05/18/Java%20Monitor/","path":"2025/05/18/Java Monitor/","title":"Java Monitor"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Java Monitor | 技术旷野</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PNNJ27E624"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-PNNJ27E624","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="技术旷野" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">技术旷野</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">技术点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%91%E6%8E%A7-JVM%E3%80%81Tomcat%E3%80%81Druid"><span class="nav-number">1.</span> <span class="nav-text">监控 JVM、Tomcat、Druid</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">mawen12</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh_CN">
+    <link itemprop="mainEntityOfPage" href="https://mawen12.github.io/2025/05/18/Java%20Monitor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="mawen12">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术旷野">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Java Monitor | 技术旷野">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java Monitor
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2025-05-18 08:57:02 / Modified: 09:47:18" itemprop="dateCreated datePublished" datetime="2025-05-18T08:57:02+08:00">2025-05-18</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="监控-JVM、Tomcat、Druid"><a href="#监控-JVM、Tomcat、Druid" class="headerlink" title="监控 JVM、Tomcat、Druid"></a>监控 JVM、Tomcat、Druid</h1><ol>
+<li>监控抽象类<br>该类负责初始化调度线程池，该线程池中仅有一个线程，每隔指定间隔执行 run() 方法</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span>  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">AbstractMonitor</span> <span class="keyword">implements</span> <span class="title class_">InitializingBean</span>, DisposableBean, ApplicationContextAware &#123;  </span><br><span class="line">	<span class="comment">// 单线程的调度线程池</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">ScheduledExecutorService</span> <span class="variable">scheduler</span> <span class="operator">=</span> Executors.newScheduledThreadPool(<span class="number">1</span>);  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">protected</span> ApplicationContext context;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setApplicationContext</span><span class="params">(ApplicationContext applicationContext)</span> <span class="keyword">throws</span> BeansException &#123;  </span><br><span class="line">        <span class="built_in">this</span>.context = applicationContext;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">destroy</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;  </span><br><span class="line">        scheduler.shutdown();  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;  </span><br><span class="line">        doAfterPropertiesSet();  </span><br><span class="line">  </span><br><span class="line">        scheduler.scheduleAtFixedRate(() -&gt; &#123;  </span><br><span class="line">            TraceContextManager.setStat();  </span><br><span class="line">            <span class="keyword">try</span> &#123;  </span><br><span class="line">                run();  </span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;  </span><br><span class="line">                log.warn(<span class="string">&quot;ERROR&quot;</span>, e);  </span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;  </span><br><span class="line">                TraceContextManager.clearStat();  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125;, getInitialDelay(), getPeriod(), getUnit());  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">protected</span> <span class="type">int</span> <span class="title function_">getInitialDelay</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">protected</span> <span class="type">int</span> <span class="title function_">getPeriod</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="number">5</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">protected</span> TimeUnit <span class="title function_">getUnit</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span> TimeUnit.SECONDS;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doAfterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;  </span><br><span class="line">        <span class="comment">// NOP  </span></span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> <span class="keyword">throws</span> Exception;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<ol start="2">
+<li>JVMHeapMonitor</li>
+</ol>
+<p>JVM的Heap监控，每隔1s在日志中打印 used&#x2F;committed&#x2F;max 内存使用。</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>used</td>
+<td>实际使用的内存</td>
+</tr>
+<tr>
+<td>committed</td>
+<td>已提交的内存，可通过 -XX:Xms VM 参数设置</td>
+</tr>
+<tr>
+<td>max</td>
+<td>最大可使用内存，可通过 -XX:xmx VM参数设置</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span>  </span><br><span class="line"><span class="meta">@Component</span>  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JVMHeapMonitor</span> <span class="keyword">extends</span> <span class="title class_">AbstractMonitor</span> &#123;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span> MemoryMXBean bean;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doAfterPropertiesSet</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="built_in">this</span>.bean = ManagementFactory.getMemoryMXBean();  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;  </span><br><span class="line">        printMemory();  </span><br><span class="line">    &#125;  </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">printMemory</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="comment">// heap: used/committed/max  </span></span><br><span class="line">        log.info(<span class="string">&quot;&#123;&#125;M/&#123;&#125;M/&#123;&#125;M&quot;</span>,  </span><br><span class="line">                bean.getHeapMemoryUsage().getUsed() / <span class="number">1024</span> / <span class="number">1024</span>,  </span><br><span class="line">                bean.getHeapMemoryUsage().getCommitted() / <span class="number">1024</span> / <span class="number">1024</span>,  </span><br><span class="line">                bean.getHeapMemoryUsage().getMax() / <span class="number">1024</span> / <span class="number">1024</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">protected</span> <span class="type">int</span> <span class="title function_">getPeriod</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>TomcatMonitor</li>
+</ol>
+<p>Tomcat的线程池监控，每隔1s在日志中打印 current-busy&#x2F;current-count&#x2F;max 线程数。</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>current-busy</td>
+<td>当前繁忙的线程数</td>
+</tr>
+<tr>
+<td>current-count</td>
+<td>当前线程总数</td>
+</tr>
+<tr>
+<td>max</td>
+<td>最大线程数</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span>  </span><br><span class="line"><span class="meta">@Component</span>  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TomcatMonitor</span> <span class="keyword">extends</span> <span class="title class_">AbstractMonitor</span> &#123;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span> MBeanServer mbs;  </span><br><span class="line">    <span class="keyword">private</span> ObjectName objectName;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doAfterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;  </span><br><span class="line">        <span class="built_in">this</span>.mbs = ManagementFactory.getPlatformMBeanServer();  </span><br><span class="line">        Set&lt;ObjectName&gt; objectNames = mbs.queryNames(<span class="keyword">new</span> <span class="title class_">ObjectName</span>(<span class="string">&quot;Tomcat:type=ThreadPool,name=*&quot;</span>), <span class="literal">null</span>);  </span><br><span class="line">        <span class="keyword">if</span> (objectNames.size() == <span class="number">1</span>) &#123;  </span><br><span class="line">            <span class="built_in">this</span>.objectName = objectNames.iterator().next();  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;  </span><br><span class="line">        <span class="comment">// current-busy/current-count/max  </span></span><br><span class="line">        log.info(<span class="string">&quot;&#123;&#125;/&#123;&#125;/&#123;&#125;&quot;</span>, getInt(<span class="string">&quot;currentThreadsBusy&quot;</span>), getInt(<span class="string">&quot;currentThreadCount&quot;</span>), getInt(<span class="string">&quot;maxThreads&quot;</span>));  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span> Integer <span class="title function_">getInt</span><span class="params">(String name)</span> <span class="keyword">throws</span> Exception &#123;  </span><br><span class="line">        <span class="keyword">return</span> (Integer) mbs.getAttribute(objectName, name);  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">protected</span> <span class="type">int</span> <span class="title function_">getPeriod</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>Druid<br>Alibaba Druid 的监控，每隔1s在日志中打印ActiveCount&#x2F;PoolingCount&#x2F;MaxActive&#x2F;WaitThreadCount 连接池的相关信息。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ActiveCount</td>
+<td>活跃的连接</td>
+</tr>
+<tr>
+<td>PoolingCount</td>
+<td>连接池中的连接</td>
+</tr>
+<tr>
+<td>MaxActive</td>
+<td>最大可活跃的连接</td>
+</tr>
+<tr>
+<td>WaitThreadCount</td>
+<td>等待获取连接的线程总数</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span>  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DruidMonitor</span> <span class="keyword">extends</span> <span class="title class_">AbstractMonitor</span> &#123;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span> MBeanServer mbs;  </span><br><span class="line">    <span class="keyword">private</span> ObjectName objectName;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doAfterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;  </span><br><span class="line">        <span class="built_in">this</span>.mbs = ManagementFactory.getPlatformMBeanServer();  </span><br><span class="line">        Set&lt;ObjectName&gt; objectNames = mbs.queryNames(<span class="keyword">new</span> <span class="title class_">ObjectName</span>(<span class="string">&quot;com.alibaba.druid:type=DruidDataSource,*&quot;</span>), <span class="literal">null</span>);  </span><br><span class="line">        <span class="keyword">if</span> (objectNames.size() == <span class="number">1</span>) &#123;  </span><br><span class="line">            <span class="built_in">this</span>.objectName = objectNames.iterator().next();  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;  </span><br><span class="line">        log.info(<span class="string">&quot;&#123;&#125;/&#123;&#125;/&#123;&#125;, &#123;&#125;&quot;</span>,  </span><br><span class="line">                getInt(<span class="string">&quot;ActiveCount&quot;</span>), getInt(<span class="string">&quot;PoolingCount&quot;</span>), getInt(<span class="string">&quot;MaxActive&quot;</span>), getInt(<span class="string">&quot;WaitThreadCount&quot;</span>));  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span> Integer <span class="title function_">getInt</span><span class="params">(String name)</span> <span class="keyword">throws</span> Exception &#123;  </span><br><span class="line">        <span class="keyword">return</span> (Integer) mbs.getAttribute(objectName, name);  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">protected</span> <span class="type">int</span> <span class="title function_">getPeriod</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># #Java</a>
+              <a href="/tags/Monitor/" rel="tag"># #Monitor</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/05/RESP2/" rel="prev" title="RESP2">
+                  <i class="fa fa-angle-left"></i> RESP2
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">mawen12</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
